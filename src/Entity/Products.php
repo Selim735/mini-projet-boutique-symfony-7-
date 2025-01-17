@@ -63,6 +63,12 @@ class Products
     #[ORM\OneToMany(targetEntity: Reviews::class, mappedBy: 'product_id')]
     private Collection $reviews;
 
+    /**
+     * @var Collection<int, OrderItems>
+     */
+    #[ORM\OneToMany(targetEntity: OrderItems::class, mappedBy: 'product_id')]
+    private Collection $orderItems;
+
     public function __construct()
     {
         $this->cartItems = new ArrayCollection();
@@ -70,6 +76,7 @@ class Products
         $this->wishlistItems = new ArrayCollection();
         $this->orderIteams = new ArrayCollection();
         $this->reviews = new ArrayCollection();
+        $this->orderItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -287,6 +294,36 @@ class Products
             // set the owning side to null (unless already changed)
             if ($review->getProductId() === $this) {
                 $review->setProductId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OrderItems>
+     */
+    public function getOrderItems(): Collection
+    {
+        return $this->orderItems;
+    }
+
+    public function addOrderItem(OrderItems $orderItem): static
+    {
+        if (!$this->orderItems->contains($orderItem)) {
+            $this->orderItems->add($orderItem);
+            $orderItem->setProductId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrderItem(OrderItems $orderItem): static
+    {
+        if ($this->orderItems->removeElement($orderItem)) {
+            // set the owning side to null (unless already changed)
+            if ($orderItem->getProductId() === $this) {
+                $orderItem->setProductId(null);
             }
         }
 

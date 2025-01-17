@@ -45,10 +45,17 @@ class Orders
     #[ORM\OneToMany(targetEntity: Payments::class, mappedBy: 'order_id')]
     private Collection $payments;
 
+    /**
+     * @var Collection<int, OrderItems>
+     */
+    #[ORM\OneToMany(targetEntity: OrderItems::class, mappedBy: 'order_id')]
+    private Collection $orderItems;
+
     public function __construct()
     {
         $this->orderIteams = new ArrayCollection();
         $this->payments = new ArrayCollection();
+        $this->orderItems = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -182,6 +189,36 @@ class Orders
             // set the owning side to null (unless already changed)
             if ($payment->getOrderId() === $this) {
                 $payment->setOrderId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, OrderItems>
+     */
+    public function getOrderItems(): Collection
+    {
+        return $this->orderItems;
+    }
+
+    public function addOrderItem(OrderItems $orderItem): static
+    {
+        if (!$this->orderItems->contains($orderItem)) {
+            $this->orderItems->add($orderItem);
+            $orderItem->setOrderId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeOrderItem(OrderItems $orderItem): static
+    {
+        if ($this->orderItems->removeElement($orderItem)) {
+            // set the owning side to null (unless already changed)
+            if ($orderItem->getOrderId() === $this) {
+                $orderItem->setOrderId(null);
             }
         }
 
